@@ -12,6 +12,7 @@ using namespace std;
 #include <string>
 using std::string;
 #include <cstring>
+#include <limits.h>
 
 
 uint16_t get_checksum(string to_check){
@@ -96,3 +97,25 @@ void system_reset( void ){
     LPC_WDT->WDFEED = 0x55;
 }
 
+int find_first_of(const char* str, const int c)
+{
+    char* f = strchr(str, c);
+    if (f)
+        return f - str;
+    return -1;
+}
+
+int find_first_of(const char* str, const char* c)
+{
+    int r = INT_MAX;
+    while (*c)
+    {
+        char* j = strchr(str, *c);
+        if ((j != NULL) && ((j - str) < r))
+            r = j - str;
+        c++;
+    }
+    if ((r < INT_MAX) && (r >= 0))
+        return r;
+    return -1;
+}

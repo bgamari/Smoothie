@@ -23,7 +23,8 @@ bool file_exists( string file_name );
 
 void system_reset( void );
 
-
+int find_first_of(const char*, const int  );
+int find_first_of(const char*, const char*);
 
 
 #endif
