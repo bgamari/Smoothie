@@ -232,7 +232,7 @@ uint8_t USBSerial::available()
 void USBSerial::on_module_loaded()
 {
     this->register_for_event(ON_MAIN_LOOP);
-//     this->kernel->streams->append_stream(this);
+//     this->register_for_event(ON_SECOND_TICK);
 }
 
 void USBSerial::on_main_loop(void *argument)
@@ -263,6 +263,9 @@ void USBSerial::on_main_loop(void *argument)
 
 void USBSerial::on_attach()
 {
+    txbuf.flush();
+    rxbuf.flush();
+    nl_in_rx = 0;
     this->kernel->streams->append_stream(this);
     writeBlock((uint8_t *) "Smoothie\nok\n", 12);
 }
@@ -273,4 +276,9 @@ void USBSerial::on_detach()
     txbuf.flush();
     rxbuf.flush();
     nl_in_rx = 0;
+}
+
+void USBSerial::on_second_tick(void* argument)
+{
+//     this->kernel->serial->printf("%p USBSerial Buffer: rx %d/%d, tx %d/%d\n", this, rxbuf.available(), 128, txbuf.available(), 128);
 }
