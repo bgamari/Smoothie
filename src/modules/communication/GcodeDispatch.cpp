@@ -30,7 +30,7 @@ void GcodeDispatch::on_module_loaded() {
 // When a command is received, if it is a Gcode, dispatch it as an object via an event
 void GcodeDispatch::on_console_line_received(void * line){
     SerialMessage new_message = *static_cast<SerialMessage*>(line);
-    char* possible_command = strdup(new_message.message.c_str());
+    char* possible_command = strdup(new_message.message);
 
     char first_char = possible_command[0];
     int ln = 0;

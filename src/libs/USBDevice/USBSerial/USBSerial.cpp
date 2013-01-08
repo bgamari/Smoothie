@@ -238,24 +238,48 @@ void USBSerial::on_module_loaded()
 void USBSerial::on_main_loop(void *argument)
 {
 //     this->kernel->streams->printf("!");
+    uint8_t rbuf[64];
+    uint8_t* received = rbuf;
+    int l = 0;
+    int s = 64;
     if (nl_in_rx)
     {
-        string received;
         while (available())
         {
-            char c = _getc();
+            uint8_t c = _getc();
             if( c == '\n' )
             {
+                received[l] = 0;
                 struct SerialMessage message;
-                message.message = received;
+                message.message = (char*) received;
                 message.stream = this;
 //                 iprintf("USBSerial Received: %s\n", message.message);
                 this->kernel->call_event(ON_CONSOLE_LINE_RECEIVED, &message );
+                if (received != rbuf)
+                {
+                    free(received);
+                    received = rbuf;
+                }
+                s = 64;
+                l = 0;
                 return;
             }
-            else
+            else if ( c != '\r' )
             {
-                received += c;
+                received[l++] = c;
+                if (l >= (s - 1))
+                {
+                    if (received == rbuf)
+                    {
+                        received = (uint8_t*) malloc(s + 16);
+                        memcpy(received, rbuf, 64);
+                        s += 16;
+                    }
+                    else {
+                        received = (uint8_t*) realloc(received, s + 16);
+                        s += 16;
+                    }
+                }
             }
         }
     }
