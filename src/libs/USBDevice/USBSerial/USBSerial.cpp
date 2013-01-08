@@ -27,7 +27,7 @@
 // extern void setled(int, bool);
 #define setled(a, b) do {} while (0)
 
-#define iprintf(...) do { } while (0)
+// #define iprintf(...) do { } while (0)
 
 USBSerial::USBSerial(USB *u): USBCDC(u), rxbuf(128), txbuf(128)
 {
@@ -56,7 +56,7 @@ int USBSerial::_getc()
     if (rxbuf.free() == MAX_PACKET_SIZE_EPBULK)
     {
         usb->endpointSetInterrupt(CDC_BulkOut.bEndpointAddress, true);
-        iprintf("rxbuf has room for another packet, interrupt enabled\n");
+//         iprintf("rxbuf has room for another packet, interrupt enabled\n");
 //         usb->endpointTriggerInterrupt(CDC_BulkOut.bEndpointAddress);
     }
     if (nl_in_rx > 0)
@@ -112,29 +112,28 @@ bool USBSerial::USBEvent_EPIn(uint8_t bEP, uint8_t bEPStatus)
     if (bEP != CDC_BulkIn.bEndpointAddress)
         return false;
 
-    iprintf("USBSerial:EpIn: 0x%02X\n", bEPStatus);
+//     iprintf("USBSerial:EpIn: 0x%02X\n", bEPStatus);
 
     uint8_t b[MAX_PACKET_SIZE_EPBULK];
 
     int l = txbuf.available();
-    iprintf("%d bytes queued\n", l);
+//     iprintf("%d bytes queued\n", l);
     if (l > 0)
     {
         if (l > MAX_PACKET_SIZE_EPBULK)
             l = MAX_PACKET_SIZE_EPBULK;
-        iprintf("Sending %d bytes:\n\t", l);
+//         iprintf("Sending %d bytes:\n\t", l);
         int i;
         for (i = 0; i < l; i++) {
             txbuf.dequeue(&b[i]);
-            if (b[i] >= 32 && b[i] < 128)
-                iprintf("%c", b[i]);
-            else {
-                iprintf("\\x%02X", b[i]);
-            }
+//             if (b[i] >= 32 && b[i] < 128)
+//                 iprintf("%c", b[i]);
+//             else
+//                 iprintf("\\x%02X", b[i]);
         }
-        iprintf("\nSending...\n");
+//         iprintf("\nSending...\n");
         send(b, l);
-        iprintf("Sent\n");
+//         iprintf("Sent\n");
 //         if (l == 64 && txbuf.available() == 0)
 //             needToSendNull = true;
         if (txbuf.available() == 0)
@@ -153,7 +152,7 @@ bool USBSerial::USBEvent_EPIn(uint8_t bEP, uint8_t bEPStatus)
 //         }
 //         usb->endpointSetInterrupt(bEP, false);
     }
-    iprintf("USBSerial:EpIn Complete\n");
+//     iprintf("USBSerial:EpIn Complete\n");
     return r;
 }
 
@@ -165,7 +164,7 @@ bool USBSerial::USBEvent_EPOut(uint8_t bEP, uint8_t bEPStatus)
 
     bool r = true;
 
-    iprintf("USBSerial:EpOut\n");
+//     iprintf("USBSerial:EpOut\n");
     if (bEP != CDC_BulkOut.bEndpointAddress)
         return false;
 
@@ -180,21 +179,17 @@ bool USBSerial::USBEvent_EPOut(uint8_t bEP, uint8_t bEPStatus)
 
     //we read the packet received and put it on the circular buffer
     readEP(c, &size);
-    iprintf("Read %ld bytes:\n\t", size);
+//     iprintf("Read %ld bytes:\n\t", size);
     for (uint8_t i = 0; i < size; i++) {
         rxbuf.queue(c[i]);
-        if (c[i] >= 32 && c[i] < 128)
-        {
-            iprintf("%c", c[i]);
-        }
-        else
-        {
-            iprintf("\\x%02X", c[i]);
-        }
+//         if (c[i] >= 32 && c[i] < 128)
+//             iprintf("%c", c[i]);
+//         else
+//             iprintf("\\x%02X", c[i]);
         if (c[i] == '\n')
             nl_in_rx++;
     }
-    iprintf("\nQueued, %d empty\n", rxbuf.free());
+//     iprintf("\nQueued, %d empty\n", rxbuf.free());
 
     if (rxbuf.free() < MAX_PACKET_SIZE_EPBULK)
     {
@@ -203,7 +198,7 @@ bool USBSerial::USBEvent_EPOut(uint8_t bEP, uint8_t bEPStatus)
     }
 
     usb->readStart(CDC_BulkOut.bEndpointAddress, MAX_PACKET_SIZE_EPBULK);
-    iprintf("USBSerial:EpOut Complete\n");
+//     iprintf("USBSerial:EpOut Complete\n");
     return r;
 }
 
@@ -254,7 +249,7 @@ void USBSerial::on_main_loop(void *argument)
                 struct SerialMessage message;
                 message.message = received;
                 message.stream = this;
-                iprintf("USBSerial Received: %s\n", message.message.c_str());
+//                 iprintf("USBSerial Received: %s\n", message.message);
                 this->kernel->call_event(ON_CONSOLE_LINE_RECEIVED, &message );
                 return;
             }
