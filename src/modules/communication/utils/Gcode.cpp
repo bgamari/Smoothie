@@ -48,6 +48,20 @@ double Gcode::get_value( char letter ){
     return 0;
 }
 
+// int Gcode::get_value( char letter )
+// {
+//     int j = find_first_of(command, letter);
+//     if (j >= 0)
+//     {
+//         do {
+//             j++;
+//         } while ((command[j] == ' ') || (command[j] == '\t'));
+//         if (((command[j] >= '0') && (command[j] <= '9')) || (command[j] == '-'))
+//             return atoi(command[j]);
+//     }
+//     return 0;
+// }
+
 int Gcode::get_num_args(){
     int count = 0;
     for (int i = strlen(command); i; i--)
