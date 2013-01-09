@@ -11,6 +11,7 @@
 #include "libs/nuts_bolts.h"
 #include "libs/SlowTicker.h"
 #include "libs/Adc.h"
+#include "libs/Digipot.h"
 #include "libs/Pauser.h"
 #include "libs/StreamOutputPool.h"
 #include <mri.h>
@@ -50,9 +51,9 @@ Kernel::Kernel(){
     }
     */
     if( NVIC_GetPriority(UART0_IRQn) > 0 ){
-        this->serial         = new SerialConsole(USBTX, USBRX, this->config->value(uart0_checksum,baud_rate_setting_checksum)->by_default(9600)->as_number());
+        this->serial         = new SerialConsole(USBTX, USBRX, this->config->value(uart0_checksum,baud_rate_setting_checksum)->by_default(115200)->as_number());
     }else{
-        this->serial         = new SerialConsole(p13, p14, this->config->value(uart0_checksum,baud_rate_setting_checksum)->by_default(9600)->as_number());
+        this->serial         = new SerialConsole(USBTX, USBRX, this->config->value(uart0_checksum,baud_rate_setting_checksum)->by_default(115200)->as_number());
     }
     this->add_module( this->config );
 
@@ -62,6 +63,7 @@ Kernel::Kernel(){
     add_module( this->slow_ticker          = new SlowTicker());
     this->step_ticker          = new StepTicker();
     this->adc                  = new Adc();
+    //this->digipot              = new Digipot();
 
     // LPC17xx-specific
     NVIC_SetPriorityGrouping(0);
