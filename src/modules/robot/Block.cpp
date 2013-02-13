@@ -206,33 +206,7 @@ void Block::release(){
     if( this->times_taken < 1 ){
         this->player->kernel->call_event(ON_BLOCK_END, this);
         this->pop_and_execute_gcode(this->player->kernel);
-        Player* player = this->player;
-
-        if( player->queue.size() > player->flush_blocks ){
-            player->flush_blocks++;
-        }
-
-        if( player->looking_for_new_block == false ){
-            if( player->queue.size() > player->flush_blocks ){
-                Block* candidate =  player->queue.get_ref(player->flush_blocks);
-                if( candidate->is_ready ){
-                    player->current_block = candidate;
-                    player->kernel->call_event(ON_BLOCK_BEGIN, player->current_block);
-                    if( player->current_block->times_taken < 1 ){
-                        player->current_block->times_taken = 1;
-                        player->current_block->release();
-                    }
-                }else{
-
-                    player->current_block = NULL;
-
-                }
-            }else{
-                player->current_block = NULL;
-            }
-        }
+        player->begin_new_block();
     }
 }
-
-
 

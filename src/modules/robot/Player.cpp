@@ -127,3 +127,32 @@ void Player::wait_for_queue(int free_blocks)
         this->kernel->call_event(ON_IDLE);
     }
 }
+
+/* This is called from Block::release when the Block has finished
+ * execution */
+void Player::begin_new_block()
+{
+    if( this->queue.size() > this->flush_blocks ){
+        this->flush_blocks++;
+    }
+
+    if( this->looking_for_new_block == false ){
+        if( this->queue.size() > this->flush_blocks ){
+            Block* candidate = this->queue.get_ref(this->flush_blocks);
+            if( candidate->is_ready ){
+                this->current_block = candidate;
+                this->kernel->call_event(ON_BLOCK_BEGIN, this->current_block);
+                if( this->current_block->times_taken < 1 ){
+                    this->current_block->times_taken = 1;
+                    this->current_block->release();
+                }
+
+            }else{
+                this->current_block = NULL;
+            }
+
+        }else{
+            this->current_block = NULL;
+        }
+    }
+}
