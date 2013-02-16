@@ -48,7 +48,6 @@ class TemperatureControlPool;
 
 class TemperatureControl : public Module {
     public:
-        TemperatureControl();
         TemperatureControl(uint16_t name);
 
         void on_module_loaded();
