@@ -44,7 +44,12 @@ void TemperatureControl::on_module_loaded(){
 
 }
 
-void TemperatureControl::on_main_loop(void* argument){ }
+void TemperatureControl::on_main_loop(void* argument){
+    if (this->min_temp_violated) {
+        kernel->streams->printf("MINTEMP triggered on P%d.%d! check your thermistors!\n", this->thermistor_pin.port_number, this->thermistor_pin.pin);
+        this->min_temp_violated = true;
+    } 
+}
 
 // Get configuration from the config file
 void TemperatureControl::on_config_reload(void* argument){
@@ -221,7 +226,7 @@ uint32_t TemperatureControl::thermistor_read_tick(uint32_t dummy){
     {
         if ((r <= 1) || (r >= 4094))
         {
-            kernel->streams->printf("MINTEMP triggered on P%d.%d! check your thermistors!\n", this->thermistor_pin.port_number, this->thermistor_pin.pin);
+            this->min_temp_violated = true;
             target_temperature = UNDEFINED;
             heater_pin.set(0);
         }

@@ -105,6 +105,7 @@ class TemperatureControl : public Module {
         Pwm  heater_pin;
 
         bool waiting;
+        bool min_temp_violated;
 
         uint16_t set_m_code;
         uint16_t set_and_wait_m_code;
