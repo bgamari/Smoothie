@@ -11,7 +11,6 @@
 #include "libs/nuts_bolts.h"
 #include "libs/SlowTicker.h"
 #include "libs/Adc.h"
-#include "libs/Digipot.h"
 #include "libs/Pauser.h"
 #include "libs/StreamOutputPool.h"
 #include <mri.h>
@@ -28,6 +27,11 @@
 
 #define baud_rate_setting_checksum CHECKSUM("baud_rate")
 #define uart0_checksum             CHECKSUM("uart0")
+
+static int isDebugMonitorUsingUart0()
+{
+    return NVIC_GetPriority(UART0_IRQn) == 0;
+}
 
 // The kernel is the central point in Smoothie : it stores modules, and handles event calls
 Kernel::Kernel(){
@@ -63,7 +67,6 @@ Kernel::Kernel(){
     add_module( this->slow_ticker          = new SlowTicker());
     this->step_ticker          = new StepTicker();
     this->adc                  = new Adc();
-    //this->digipot              = new Digipot();
 
     // LPC17xx-specific
     NVIC_SetPriorityGrouping(0);

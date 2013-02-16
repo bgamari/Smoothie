@@ -19,6 +19,8 @@ using std::string;
 #include "../communication/utils/Gcode.h"
 #include "arm_solutions/BaseSolution.h"
 #include "arm_solutions/CartesianSolution.h"
+#include "arm_solutions/RotatableCartesianSolution.h"
+#include "arm_solutions/RostockSolution.h"
 
 Robot::Robot(){
     this->inch_mode = false;
@@ -48,7 +50,26 @@ void Robot::on_module_loaded() {
 
 void Robot::on_config_reload(void* argument){
     if (this->arm_solution) delete this->arm_solution;
-    this->arm_solution = new CartesianSolution(this->kernel->config);
+    int solution_checksum = get_checksum(this->kernel->config->value(arm_solution_checksum)->by_default("cartesian")->as_string());
+
+	// Note checksums are not const expressions when in debug mode, so don't use switch
+	if(solution_checksum == rostock_checksum) {
+		this->arm_solution = new RostockSolution(this->kernel->config);
+
+	}else if(solution_checksum ==  delta_checksum) {
+		// place holder for now
+		this->arm_solution = new RostockSolution(this->kernel->config);
+
+    }else if(solution_checksum == rotatable_cartesian_checksum) {
+        this->arm_solution = new RotatableCartesianSolution(this->kernel->config);
+
+	}else if(solution_checksum == cartesian_checksum) {
+		this->arm_solution = new CartesianSolution(this->kernel->config);
+
+	}else{
+		this->arm_solution = new CartesianSolution(this->kernel->config);
+	}
+
 
     this->feed_rate           = this->kernel->config->value(default_feed_rate_checksum   )->by_default(100    )->as_number() / 60;
     this->seek_rate           = this->kernel->config->value(default_seek_rate_checksum   )->by_default(100    )->as_number() / 60;
@@ -89,6 +110,12 @@ void Robot::on_gcode_received(void * argument){
         block->append_gcode(gcode);
         gcode->queued++;
     }
+}
+
+
+void Robot::reset_axis_position(double position, int axis) {
+    this->last_milestone[axis] = this->current_position[axis] = position;
+    this->arm_solution->millimeters_to_steps(this->current_position, this->kernel->planner->position);
 }
 
 
